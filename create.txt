@@ -1,0 +1,103 @@
+
+create table Studio(
+	name varchar(20) not null,
+	website varchar(20) not null,
+	address varchar(20),
+	constraint Studio_PK
+		primary key (name, website)
+);
+
+create table Series(
+	name varchar(20) not null,
+	creator varchar(20) not null,
+	website varchar(20),
+	start_date date,
+	end_date date,
+	studio_name varchar(20) not null,
+	studio_website varchar(20) not null,
+	constraint Series_PK
+		primary key(name, creator),
+	constraint Series_in_Studio_FK
+		foreign key(studio_name, studio_website) references Studio (name, website)
+);
+
+create table Season(
+	num smallint not null,
+	series varchar(20) not null,
+	series_creator varchar(20) not null,
+	constraint season_pk
+		primary key (num, series, series_creator),
+	constraint season_in_series_fk
+		foreign key (series, series_creator) references Series (name, creator)
+);
+
+create table Episode(
+	title varchar(20) not null,
+	air_date date not null,
+	URL varchar(20),
+	description varchar(80) not null,
+	quality_rating smallint not null,
+	season smallint not null,
+	series varchar(20) not null,
+	creator varchar(20) not null,
+	constraint episode_pk
+		primary key (title, season),
+	constraint episode_in_season_fk
+		foreign key (season, series, creator) references Season (num, series, series_creator),
+	constraint episode_of_series_fk
+		foreign key (series, creator) references Series(name, creator)
+);
+
+create table Actor(
+	name varchar(20) not null,
+	website varchar(30),
+	constraint actor_pk
+		primary key (name)
+);
+
+create table stars(
+	actor varchar(20) not null,
+	season smallint not null,
+	salary int not null,
+	series varchar(20) not null,
+	creator varchar(20) not null,
+	constraint stars_pk
+		primary key (actor, season, series, creator),
+	constraint actor_stars_fk
+		foreign key (actor) references Actor (name),
+	constraint stars_in_season_fk
+		foreign key (season, series, creator) references Season (num, series, series_creator),
+	constraint stars_in_series_fk
+		foreign key (series, creator) references Series	(name, creator)
+);
+
+create table Charac(
+	name varchar(20) not null,
+	role varchar(20) not null,
+	series varchar(20) not null,
+	creator_name varchar(20) not null,
+	constraint character_pk
+		primary key (name, series, creator_name),
+	constraint character_in_series_fk
+		foreign key (series, creator_name) references Series (name, creator)
+);
+create table Portrayal (
+	actor varchar(20) not null,
+	season smallint not null,
+	character_name varchar(20) not null,
+	episode varchar(20) not null,
+	series varchar(20) not null,
+	series_creator varchar(20) not null,
+	constraint Portrayal_PK
+		primary key (actor, character_name, episode),
+	constraint Actor_portrayed_FK
+		foreign key (actor) references Actor (name),
+	constraint Actor_portrayed_in_season_FK
+		foreign key (actor, season, series, series_creator) references stars (actor, season, series, creator),
+	constraint character_portrayal_in_series_FK
+		foreign key (character_name, series, series_creator) references Charac (name, series, creator_name),
+	constraint episode_portrayed_in_season
+		foreign key (episode, season) references episode (title, season),
+	constraint Portrayal_in_series_FK
+		foreign key (series, series_creator) references series (name, creator)
+);
